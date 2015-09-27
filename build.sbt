@@ -11,6 +11,7 @@ libraryDependencies ++= Seq(
   ws,
   evolutions,
   "org.scalaz"        %% "scalaz-core"            % "7.1.4",
+  "org.typelevel"     %% "scalaz-contrib-210"     % "0.2",
   "com.typesafe.play" %% "play-slick"             % "1.1.0-M2",
   "com.typesafe.play" %% "play-slick-evolutions"  % "1.1.0-M2",
   "com.h2database"    % "h2"                      % "1.4.189",
