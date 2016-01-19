@@ -10,11 +10,11 @@ scalaVersion := "2.11.7"
 libraryDependencies ++= Seq(
   cache,
   ws,
-  evolutions,
   "org.scalaz"        %% "scalaz-core"            % "7.1.5",
   "com.typesafe.play" %% "play-slick"             % "1.1.1",
   "com.ticketfly"     %% "play-liquibase"         % "1.0",
   "com.h2database"    % "h2"                      % "1.4.189",
+  "org.scalatest"     %% "scalatest"              % "2.2.6"     % Test,
   "org.scalatestplus" %% "play"                   % "1.4.0"     % Test,
   "org.scalacheck"    %% "scalacheck"             % "1.12.5"    % Test
 )
@@ -40,7 +40,7 @@ scalacOptions ++= Seq(
   "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
-  "-Ywarn-value-discard",
+  // "-Ywarn-value-discard",
   "-Xfuture",
   "-language:existentials",
   "-language:higherKinds",
