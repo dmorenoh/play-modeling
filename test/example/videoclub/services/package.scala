@@ -10,7 +10,7 @@ package object services {
 
   type Valid[A] = Errors \/ A
 
-  type FutureValid[A] = EitherT[Future, Errors, A]
+  type ServiceResult[A] = EitherT[Future, Errors, A]
 
 
 
