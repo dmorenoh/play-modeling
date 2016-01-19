@@ -23,7 +23,6 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
   private val customers = implicitly[Arbitrary[Customer]].arbitrary
   private val timestamps = implicitly[Arbitrary[Timestamp]].arbitrary
 
-  "Rental Service Rules" should {
 
     "After adding DVDs, you should be able to find at least one" in forAll(movies -> "movie", qtys -> "qty") { (movie, qty) =>
 
@@ -102,6 +101,5 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
           }
         }
     }
-  }
 
 }
