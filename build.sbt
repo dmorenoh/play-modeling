@@ -16,7 +16,8 @@ libraryDependencies ++= Seq(
   "com.h2database"    % "h2"                      % "1.4.189",
   "org.scalatest"     %% "scalatest"              % "2.2.6"     % Test,
   "org.scalatestplus" %% "play"                   % "1.4.0"     % Test,
-  "org.scalacheck"    %% "scalacheck"             % "1.12.5"    % Test
+  "org.scalacheck"    %% "scalacheck"             % "1.12.5"    % Test,
+  "org.typelevel"     %% "scalaz-scalatest"       % "0.3.0"     % Test
 )
 
 scalacOptions ++= Seq(

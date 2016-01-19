@@ -1,11 +1,14 @@
 package example.videoclub.filters
 
+import javax.inject.Singleton
+
 import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.mvc.{Result, RequestHeader, Filter}
 
 import scala.concurrent.Future
 
+@Singleton
 class LoggingFilter extends Filter {
 
   private val log = Logger(this.getClass)
