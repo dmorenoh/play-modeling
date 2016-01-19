@@ -50,3 +50,6 @@ scalacOptions ++= Seq(
 )
 
 fork in Test := false
+
+// show elapsed time, and run tests in parallel
+testOptions in Test += Tests.Argument("-oDP")

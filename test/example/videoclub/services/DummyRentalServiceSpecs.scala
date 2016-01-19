@@ -5,8 +5,6 @@ import java.util.UUID
 
 import org.scalacheck.{Arbitrary, Gen}
 
-import scala.concurrent.duration._
-
 sealed class DummyRentalServiceSpecsRun(
   implicit val arbUUID: Arbitrary[UUID] = Arbitrary(Gen.uuid),
   implicit val arbZonedDateTIme: Arbitrary[ZonedDateTime] = Arbitrary(for {
@@ -20,12 +18,10 @@ sealed class DummyRentalServiceSpecsRun(
 
 ) extends RentalServiceRules[String, UUID, UUID, ZonedDateTime] {
 
-  override implicit val patienceConfig = PatienceConfig(2 seconds)
-
   override def service: RentalService[ServiceResult, String, UUID, UUID, ZonedDateTime] = DummyRentalService
 }
 
-class DummRentalServiceSpecs extends DummyRentalServiceSpecsRun
+class DummyRentalServiceSpecs extends DummyRentalServiceSpecsRun
 
 
 
