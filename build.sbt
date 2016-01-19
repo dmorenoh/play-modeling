@@ -48,3 +48,5 @@ scalacOptions ++= Seq(
   "-language:postfixOps",
   "-language:implicitConversions"
 )
+
+fork in Test := false
