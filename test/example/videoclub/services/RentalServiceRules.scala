@@ -1,3 +1,4 @@
+
 package example.videoclub.services
 
 import org.scalacheck.{Arbitrary, Gen}
@@ -15,7 +16,7 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
   with Matchers
   with PropertyChecks with ScalaFutures with DisjunctionMatchers with AsyncAssertions {
 
-  def service: RentalService[ServiceResult, Movie, Customer, DVD, Timestamp]
+  def createService(): RentalService[ServiceResult, Movie, Customer, DVD, Timestamp]
 
   private val qtys = Gen.choose(1, 1000)
 
@@ -29,25 +30,29 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
   } yield (qty, custs)
 
 
+  private def withService[A](f: RentalService[ServiceResult, Movie, Customer, DVD, Timestamp] => A) = f(createService())
+
   "After adding DVDs, you should be able to find at least one" in forAll(movies -> "movie", qtys -> "qty") { (movie, qty) =>
 
-    whenever(qty > 0) {
-      val respones = for {
-        dvds <- service.addMovie(movie, qty)
-        found <- service.findDVD(movie)
-      } yield (dvds, found)
+    withService { service =>
+      whenever(qty > 0) {
+        val respones = for {
+          dvds <- service.addMovie(movie, qty)
+          found <- service.findDVD(movie)
+        } yield (dvds, found)
 
-      whenReady(respones.run) { result =>
+        whenReady(respones.run) { result =>
 
-        result shouldBe right
+          result shouldBe right
 
-        val \/-((dvds, foundDvd)) = result
+          val \/-((dvds, foundDvd)) = result
 
-        foundDvd shouldBe defined
+          foundDvd shouldBe defined
 
-        val Some(dvd) = foundDvd
+          val Some(dvd) = foundDvd
 
-        dvds should contain(dvd)
+          dvds should contain(dvd)
+        }
       }
     }
   }
@@ -55,17 +60,21 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
 
   "After adding DVDs, you should be able to rent at least one" in forAll(movies -> "movie", qtys -> "qty", customers -> "customer", timestamps -> "timestamp") {
     (movie, qty, customer, timestamp) =>
-      whenever(qty > 0) {
 
-        val respones = for {
-          dvds <- service.addMovie(movie, qty)
-          aDvd = Random.shuffle(dvds.toList).head
-          _ <- service.rentDVD(aDvd, customer, timestamp)
-        } yield ()
+      withService { service =>
 
-        whenReady(respones.run) { result =>
-          result shouldBe right
+        whenever(qty > 0) {
 
+          val respones = for {
+            dvds <- service.addMovie(movie, qty)
+            aDvd = Random.shuffle(dvds.toList).head
+            _ <- service.rentDVD(customer, aDvd, timestamp)
+          } yield ()
+
+          whenReady(respones.run) { result =>
+            result shouldBe right
+
+          }
         }
       }
   }
@@ -73,17 +82,21 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
 
   "You should be able to rent all available DVDs" in forAll(movies -> "movie", qtyCustomers -> "qty", timestamps -> "timestamp") {
     case (movie, (qty, custs), timestamp) =>
-      whenever(qty > 0 && custs.nonEmpty) {
 
-        val respones = for {
-          dvds <- service.addMovie(movie, qty)
-          resp <- dvds.toList.zip(custs).traverseU { case (dvd, customer) =>
-            service.rentDVD(dvd, customer, timestamp)
+      withService { service =>
+
+        whenever(qty > 0 && custs.nonEmpty) {
+
+          val respones = for {
+            dvds <- service.addMovie(movie, qty)
+            resp <- dvds.toList.zip(custs).traverseU { case (dvd, customer) =>
+              service.rentDVD(customer, dvd, timestamp)
+            }
+          } yield resp
+
+          whenReady(respones.run) { result =>
+            result shouldBe right
           }
-        } yield resp
-
-        whenReady(respones.run) { result =>
-          result shouldBe right
         }
       }
   }
@@ -91,24 +104,28 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
 
   "You should not be able to find any more available DVDs after they are all rented" in forAll(movies -> "movie", qtyCustomers -> "qty", timestamps -> "timestamp") {
     case (movie, (qty, custs), timestamp) =>
-      whenever(qty > 0 && custs.nonEmpty) {
 
-        val respones = for {
-          dvds <- service.addMovie(movie, qty)
-          _ <- dvds.toList.zip(custs).traverseU {
-            case (dvd, customer) =>
-              service.rentDVD(dvd, customer, timestamp)
+      withService { service =>
+
+        whenever(qty > 0 && custs.nonEmpty) {
+
+          val respones = for {
+            dvds <- service.addMovie(movie, qty)
+            _ <- dvds.toList.zip(custs).traverseU {
+              case (dvd, customer) =>
+                service.rentDVD(customer, dvd, timestamp)
+            }
+            findDvd <- service.findDVD(movie)
+          } yield findDvd
+
+          whenReady(respones.run) {
+            result =>
+              result shouldBe right
+              val \/-(foundDvd) = result
+
+              foundDvd shouldBe empty
+
           }
-          findDvd <- service.findDVD(movie)
-        } yield findDvd
-
-        whenReady(respones.run) {
-          result =>
-            result shouldBe right
-            val \/-(foundDvd) = result
-
-            foundDvd shouldBe empty
-
         }
       }
   }
@@ -116,31 +133,34 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
   "After DVD is returned, it should be available in search" in forAll(movies -> "movie", qtyCustomers -> "qty", timestamps -> "timestamp") {
     case (movie, (qty, custs), timestamp) =>
 
-      whenever(qty > 0 && custs.nonEmpty) {
+      withService { service =>
 
-        val respones = for {
-          dvds <- service.addMovie(movie, qty)
-          dvdCustomerPairs = dvds.toList.zip(custs)
-          _ <- dvdCustomerPairs.traverseU {
-            case (dvd, customer) =>
-              service.rentDVD(dvd, customer, timestamp)
+        whenever(qty > 0 && custs.nonEmpty) {
+
+          val respones = for {
+            dvds <- service.addMovie(movie, qty)
+            dvdCustomerPairs = dvds.toList.zip(custs)
+            _ <- dvdCustomerPairs.traverseU {
+              case (dvd, customer) =>
+                service.rentDVD(customer, dvd, timestamp)
+            }
+            (aDvd, aCustomer) = dvdCustomerPairs.head
+            _ <- service.returnDVD(aCustomer, aDvd, timestamp)
+            findDvd <- service.findDVD(movie)
+          } yield (aDvd, findDvd)
+
+          whenReady(respones.run) {
+            result =>
+              result shouldBe right
+              val \/-((returnedDvd, foundDvd)) = result
+
+              foundDvd shouldBe defined
+
+              val Some(dvd) = foundDvd
+
+              dvd shouldEqual returnedDvd
+
           }
-          (aDvd, aCustomer) = dvdCustomerPairs.head
-          _ <- service.returnDVD(aCustomer, aDvd, timestamp)
-          findDvd <- service.findDVD(movie)
-        } yield (aDvd, findDvd)
-
-        whenReady(respones.run) {
-          result =>
-            result shouldBe right
-            val \/-((returnedDvd, foundDvd)) = result
-
-            foundDvd shouldBe defined
-
-            val Some(dvd) = foundDvd
-
-            dvd shouldEqual returnedDvd
-
         }
       }
   }

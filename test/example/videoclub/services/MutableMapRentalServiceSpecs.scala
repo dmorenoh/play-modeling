@@ -5,7 +5,7 @@ import java.util.UUID
 
 import org.scalacheck.{Arbitrary, Gen}
 
-sealed class DummyRentalServiceSpecsRun(
+sealed class MutableMapRentalServiceSpecsRun(
   implicit val arbUUID: Arbitrary[UUID] = Arbitrary(Gen.uuid),
   implicit val arbZonedDateTIme: Arbitrary[ZonedDateTime] = Arbitrary(for {
     day     <- Gen.choose(0L, 3650L)
@@ -18,10 +18,10 @@ sealed class DummyRentalServiceSpecsRun(
 
 ) extends RentalServiceRules[String, UUID, UUID, ZonedDateTime] {
 
-  override def service: RentalService[ServiceResult, String, UUID, UUID, ZonedDateTime] = DummyRentalService
+  override def createService(): RentalService[ServiceResult, String, UUID, UUID, ZonedDateTime] = new MutableMapRentalService()
 }
 
-class DummyRentalServiceSpecs extends DummyRentalServiceSpecsRun
+class MutableMapRentalServiceSpecs extends MutableMapRentalServiceSpecsRun
 
 
 
