@@ -3,3 +3,5 @@ scala:
   - 2.11.7
 jdk:
   - oraclejdk8
+script:
+   - sbt ++$TRAVIS_SCALA_VERSION '; set testOptions in Test ++= Seq(Tests.Argument("-F"), Tests.Argument("10.0")); test'

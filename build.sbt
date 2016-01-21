@@ -49,7 +49,8 @@ scalacOptions ++= Seq(
   "-language:implicitConversions"
 )
 
+// Have to do this because of scalatest async matchers
 fork in Test := false
 
-// show elapsed time, and run tests in parallel
+// show elapsed time
 testOptions in Test += Tests.Argument("-oD")
