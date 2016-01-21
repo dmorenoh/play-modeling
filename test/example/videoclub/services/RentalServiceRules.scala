@@ -23,6 +23,11 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
   private val customers = implicitly[Arbitrary[Customer]].arbitrary
   private val timestamps = implicitly[Arbitrary[Timestamp]].arbitrary
 
+  private val qtyCustomers = for {
+    qty <- qtys
+    custs <- Gen.listOfN(qty, customers)
+  } yield (qty, custs)
+
 
   "After adding DVDs, you should be able to find at least one" in forAll(movies -> "movie", qtys -> "qty") { (movie, qty) =>
 
@@ -62,44 +67,44 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
   }
 
 
-  "You should be able to rent all available DVDs" in forAll(movies -> "movie", qtys -> "qty", timestamps -> "timestamp") {
-    (movie, qty, timestamp) =>
-      forAll(Gen.listOfN(qty, customers) -> "customers") { customers =>
+  "You should be able to rent all available DVDs" in forAll(movies -> "movie", qtyCustomers -> "qty", timestamps -> "timestamp") {
+    case (movie, (qty, customers), timestamp) =>
 
-        val respones = for {
-          dvds <- service.addMovie(movie, qty)
-          resp <- dvds.toList.zip(customers).traverseU { case (dvd, customer) =>
-            service.rentDVD(dvd, customer, timestamp)
-          }
-        } yield resp
-
-        whenReady(respones.run) { result =>
-          result shouldBe right
+      val respones = for {
+        dvds <- service.addMovie(movie, qty)
+        resp <- dvds.toList.zip(customers).traverseU { case (dvd, customer) =>
+          service.rentDVD(dvd, customer, timestamp)
         }
+      } yield resp
+
+      whenReady(respones.run) { result =>
+        result shouldBe right
       }
+
   }
 
 
-  "You should not be able to find any more availabel DVDs after they are all rented" in forAll(movies -> "movie", qtys -> "qty", timestamps -> "timestamp") {
-    (movie, qty, timestamp) =>
+  "You should not be able to find any more availabel DVDs after they are all rented" in forAll(movies -> "movie", qtyCustomers -> "qty", timestamps -> "timestamp") {
+    case (movie, (qty, customers), timestamp) =>
 
-      forAll(Gen.listOfN(qty, customers) -> "customers") { customers =>
-        val respones = for {
-          dvds <- service.addMovie(movie, qty)
-          _ <- dvds.toList.zip(customers).traverseU { case (dvd, customer) =>
+      val respones = for {
+        dvds <- service.addMovie(movie, qty)
+        _ <- dvds.toList.zip(customers).traverseU {
+          case (dvd, customer) =>
             service.rentDVD(dvd, customer, timestamp)
-          }
-          findDvd <- service.findDVD(movie)
-        } yield findDvd
+        }
+        findDvd <- service.findDVD(movie)
+      } yield findDvd
 
-        whenReady(respones.run) { result =>
+      whenReady(respones.run) {
+        result =>
           result shouldBe right
           val \/-(foundDvd) = result
 
           foundDvd shouldBe empty
 
-        }
       }
+
   }
 
 }
