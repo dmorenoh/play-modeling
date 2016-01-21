@@ -55,6 +55,8 @@ scalacOptions ++= Seq(
 fork in Test := false
 
 // show elapsed time
-testOptions in Test += Tests.Argument("-oD")
+testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
+
+ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;"
 
 coverallsToken := Some("CmVOS8zfIvU3HIHjTbwcXs1QIX01J1Gqr")
