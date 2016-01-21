@@ -14,14 +14,7 @@ class LoggingFilter extends Filter {
   private val log = Logger(this.getClass)
 
   override def apply(nextFilter: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
-
-    if (rh.path.startsWith("/health-check")) {
-      // do not litter logs with noise from health-check
-      log.debug(s"[${getAddress(rh)}] $rh")
-    } else {
-      log.info(s"[${getAddress(rh)}] $rh")
-    }
-
+    log.info(s"[${getAddress(rh)}] $rh")
     nextFilter(rh)
   }
 
