@@ -1,3 +1,5 @@
+import org.scoverage.coveralls.Imports.CoverallsKeys._
+
 name := "play-modeling"
 
 version := "1.0-SNAPSHOT"
@@ -54,3 +56,5 @@ fork in Test := false
 
 // show elapsed time
 testOptions in Test += Tests.Argument("-oD")
+
+coverallsToken := Some("CmVOS8zfIvU3HIHjTbwcXs1QIX01J1Gqr")
