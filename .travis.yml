@@ -6,4 +6,5 @@ jdk:
 script:
   - sbt ++$TRAVIS_SCALA_VERSION '; set testOptions in Test ++= Seq(Tests.Argument("-F"), Tests.Argument("10.0")); coverage; test'
 after_success:
-  - sbt ++$TRAVIS_SCALA_VERSION coveralls
+  - sbt ++$TRAVIS_SCALA_VERSION coverageReport
+  - sbt ++$TRAVIS_SCALA_VERSION codacyCoverage
