@@ -68,8 +68,8 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
           val respones = for {
             dvds <- service.addMovie(movie, qty)
             aDvd = Random.shuffle(dvds.toList).head
-            _ <- service.rentDVD(customer, aDvd, timestamp)
-          } yield ()
+            r <- service.rentDVD(customer, aDvd, timestamp)
+          } yield r
 
           whenReady(respones.run) { result =>
             result shouldBe right
@@ -77,6 +77,21 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
           }
         }
       }
+  }
+
+  "If movie is not in inventory, you should not be able to find it" in forAll(movies -> "movie") { movie =>
+    withService { service =>
+      val respones = service.findDVD(movie)
+
+      whenReady(respones.run) { result =>
+
+        result shouldBe right
+
+        val \/-(foundDvd) = result
+
+        foundDvd shouldBe empty
+      }
+    }
   }
 
 
@@ -130,6 +145,7 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
       }
   }
 
+
   "After DVD is returned, it should be available in search" in forAll(movies -> "movie", qtyCustomers -> "qty", timestamps -> "timestamp") {
     case (movie, (qty, custs), timestamp) =>
 
@@ -165,4 +181,27 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
       }
   }
 
+  "You should get error if trying to rent same dvd twice" in forAll(movies -> "movie", qtys -> "qty", customers -> "customer1", customers -> "customer2", timestamps -> "timestamp") {
+    (movie, qty, customer1, customer2, timestamp) =>
+
+      withService { service =>
+
+        whenever(qty > 0) {
+
+          val respones = for {
+            dvds <- service.addMovie(movie, qty)
+            aDvd = Random.shuffle(dvds.toList).head
+            r1 <- service.rentDVD(customer1, aDvd, timestamp)
+            r2 <- service.rentDVD(customer2, aDvd, timestamp)
+          } yield r2
+
+          whenReady(respones.run) {
+            result =>
+              result shouldBe left
+          }
+        }
+      }
+  }
 }
+
+

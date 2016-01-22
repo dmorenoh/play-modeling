@@ -7,7 +7,7 @@ import scalaz._
 package object services {
 
 
-  type Errors = NonEmptyList[String]
+  type Errors = String
 
   type Valid[A] = Errors \/ A
 
