@@ -3,6 +3,7 @@ package example.videoclub.services
 import java.util.UUID
 import java.time._
 
+
 import scala.collection.mutable.{Map => MMap}
 import scala.collection.mutable.{Set => MSet}
 import scalaz._
