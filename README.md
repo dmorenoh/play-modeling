@@ -20,11 +20,65 @@ domain knowledge.
 
 ### 1. Parametrize Types In The Service Trait
 
-### 2. Add Higher-kind Wrapper Around Results
+```scala
+trait RentalService[Movie, Customer, DVD, Timestamp] {
+
+  def addMovie(movie: Movie, qty: Int): Set[DVD]
+
+  def findDVD(movie: Movie): Option[DVD]
+
+  def rentDVD(customer: Customer, dvd: DVD, timestamp: Timestamp): Unit
+
+  def returnDVD(customer: Customer, dvd: DVD, timestamp: Timestamp): Unit
+
+}
+```
+
+### 2. Add Higher-kind Wrapper `M[_]` Around Results
+
+```scala
+trait RentalService[M[_], Movie, Customer, DVD, Timestamp] {
+
+  def addMovie(movie: Movie, qty: Int): M[Set[DVD]]
+
+  def findDVD(movie: Movie): M[Option[DVD]]
+
+  def rentDVD(customer: Customer, dvd: DVD, timestamp: Timestamp): M[Unit]
+
+  def returnDVD(customer: Customer, dvd: DVD, timestamp: Timestamp): M[Unit]
+
+}
+```
 
 ### 4. Start Defining Business Domain Rules
+```scala
+  "After adding DVDs, you should be able to rent at least one" in forAll(movies -> "movie", qtys -> "qty", customers -> "customer", timestamps -> "timestamp") {
+    (movie, qty, customer, timestamp) =>
+
+      withService { service =>
+
+        whenever(qty > 0) {
+
+          val respones = for {
+            dvds  <- service.addMovie(movie, qty)
+            aDvd  = Random.shuffle(dvds.toList).head
+            r     <- service.rentDVD(customer, aDvd, timestamp)
+          } yield r
+
+          whenReady(respones.run) { result =>
+            result shouldBe right
+          }
+        }
+      }
+  }
+
+```
 
 ### 5. Define Repository Trait
+
+```scala
+type ServiceResult[A, Repo <: Repository] = Kleisli[AsyncResult, Repo, A]
+```
 
 ### 3. Implement Controllers
 
