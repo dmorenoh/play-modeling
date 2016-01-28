@@ -65,10 +65,20 @@ trait RentalService[M[_], Movie, Customer, DVD, Timestamp] {
         }
       }
   }
-
 ```
 
+Notice that, at this point, we still don't have any concrete implementation of what "Movie", "DVD", etc are.
+We can't introduce any accidental complexity from the implementation because there, simply, isn't any
+implementation yet.
+
+This is what Test Driven Development (TDD) should really be like.
+
+
 ### 5. Define Repository Trait
+
+Make dependency on repository explicit. In the context.
+
+Our `M[_]` becomes a function: `Repository => Future[Error \/ A]`
 
 ```scala
 type ServiceResult[A, Repo <: Repository] = Kleisli[AsyncResult, Repo, A]
