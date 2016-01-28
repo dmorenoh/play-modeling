@@ -44,6 +44,13 @@ trait RentalService[M[_], Movie, Customer, DVD, Timestamp] {
 }
 ```
 
+#### What are all the choices for `M[_]` ?
+
+`Id` | A do-nothing monad: `type Id[A] = A`. Same as not having `M`
+`Error \/ A` | Adds error handling: `type Valid[A] = Error \/ A`
+`Future` | Async service |
+`Future[Error \/ A]` | Best of the above two. Can be turned into a Monad using `EitherT[Future, Error, A]`
+
 ### 4. Start Defining Business Domain Rules
 ```scala
   "After adding DVDs, you should be able to rent at least one" in forAll(movies -> "movie", qtys -> "qty", customers -> "customer", timestamps -> "timestamp") {
