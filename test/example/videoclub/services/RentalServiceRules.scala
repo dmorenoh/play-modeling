@@ -1,7 +1,7 @@
 
 package example.videoclub.services
 
-import example.videoclub.repository.AsyncRepository
+import example.videoclub.repository.Repository
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest._
 import org.scalatest.concurrent.{AsyncAssertions, ScalaFutures}
@@ -13,13 +13,15 @@ import scala.util.Random
 import scalaz.Scalaz._
 import scalaz._
 
-abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Arbitrary, Timestamp: Arbitrary] extends WordSpec
+abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Arbitrary, Timestamp: Arbitrary, Repo <: Repository] extends WordSpec
   with Matchers
   with PropertyChecks with ScalaFutures with DisjunctionMatchers with AsyncAssertions {
 
-  def createService: RentalService[ServiceResult, Movie, Customer, DVD, Timestamp]
+  type RentalServiceResult[A] = ServiceResult[A, Repo]
 
-  def repo: AsyncRepository
+  def createService: RentalService[RentalServiceResult, Movie, Customer, DVD, Timestamp]
+
+  def repo: Repo
 
   private val qtys = Gen.choose(1, 100)
 
@@ -33,7 +35,7 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
   } yield (qty, custs)
 
 
-  private def withService[A](f: RentalService[ServiceResult, Movie, Customer, DVD, Timestamp] => A) = f(createService)
+  private def withService[A](f: RentalService[RentalServiceResult, Movie, Customer, DVD, Timestamp] => A) = f(createService)
 
   "After adding DVDs, you should be able to find at least one" in forAll(movies -> "movie", qtys -> "qty") { (movie, qty) =>
 

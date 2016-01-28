@@ -1,6 +1,7 @@
 package example.videoclub
 
-import example.videoclub.repository.AsyncRepository
+
+import example.videoclub.repository.{DVDRepository, Repository}
 
 import scala.concurrent.Future
 import scalaz.Scalaz._
@@ -17,14 +18,19 @@ package object services {
 
   type AsyncResult[A] = EitherT[Future, Errors, A]
 
-  type ServiceResult[A] = Kleisli[AsyncResult, AsyncRepository, A]
+  type ServiceResult[A, Repo <: Repository] = Kleisli[AsyncResult, Repo, A]
 
 
   object $ {
-    def <~[A](a: AsyncRepository => AsyncResult[A]): ServiceResult[A] = Kleisli.kleisliU((r: AsyncRepository) => a(r))
-    def <~[A](a: Future[Valid[A]]): ServiceResult[A] = <~(_ => EitherT(a))
-    def <~[A](a: Valid[A]): ServiceResult[A] = <~(Future.successful(a))
-    def <~[A](a: A): ServiceResult[A] = <~(a.right)
+    def <~[A](a: Future[Valid[A]]): AsyncResult[A] = EitherT(a)
+    def <~[A](a: Valid[A])        : AsyncResult[A] = <~(Future.successful(a))
+    def <~[A](a: A)               : AsyncResult[A] = <~(a.right)
+
+    def <~~[A, Repo <: Repository](a: Repo => AsyncResult[A]) : ServiceResult[A, Repo] = Kleisli.kleisliU((r: Repo) => a(r))
+    def <~~[A, Repo <: Repository](a: AsyncResult[A])         : ServiceResult[A, Repo] = <~~(_ => a)
+    def <~~[A, Repo <: Repository](a: Future[Valid[A]])       : ServiceResult[A, Repo] = <~~(<~(a))
+    def <~~[A, Repo <: Repository](a: Valid[A])               : ServiceResult[A, Repo] = <~~(<~(a))
+    def <~~[A, Repo <: Repository](a: A)                      : ServiceResult[A, Repo] = <~~(<~(a))
   }
 
 }

@@ -3,7 +3,6 @@ package example.videoclub.services
 import java.time._
 import java.util.UUID
 
-import example.videoclub.repository.AsyncRepository
 import org.scalacheck.{Arbitrary, Gen}
 
 sealed class MutableMapRentalServiceSpecsRun(
@@ -19,11 +18,11 @@ sealed class MutableMapRentalServiceSpecsRun(
   } yield ZonedDateTime.of(2016, 1, 1, 0, 0, 0, 0, tz).plusDays(day).plusHours(hour).plusMinutes(minute).plusSeconds(second)
   )
 
-) extends RentalServiceRules[String, UUID, UUID, ZonedDateTime] {
+) extends RentalServiceRules[String, UUID, UUID, ZonedDateTime, MutableMapDVDRepository] {
 
-  override def createService: RentalService[ServiceResult, String, UUID, UUID, ZonedDateTime] = new MutableMapRentalService()
+  override def createService = new MutableMapRentalService()
 
-  override def repo: AsyncRepository = new AsyncRepository {}
+  override def repo = new MutableMapDVDRepository
 }
 
 class MutableMapRentalServiceSpecs extends MutableMapRentalServiceSpecsRun
