@@ -2,6 +2,21 @@
 
 # Functional Domain Modeling in Play
 
+  * [Functional Domain Modeling in Play](#functional-domain-modeling-in-play)
+    * [Intro](#intro)
+    * [Goals](#goals)
+    * [Evolution Of The Functional Domain Model](#evolution-of-the-functional-domain-model)
+      * [1. Parametrize Types In The Service Trait](#1-parametrize-types-in-the-service-trait)
+      * [2. Add Higher-kind Wrapper M[_] Around Results](#2-add-higher-kind-wrapper-m_-around-results)
+        * [What are all the choices for M[_] ?](#what-are-all-the-choices-for-m_-)
+      * [4. Start Defining Business Domain Rules](#4-start-defining-business-domain-rules)
+      * [5. Define Repository Trait](#5-define-repository-trait)
+      * [3. Implement Controllers](#3-implement-controllers)
+      * [6. Naive Implementation Of The Domain](#6-naive-implementation-of-the-domain)
+      * [7. Implement Domain Using Repository Backed By Relational Database](#7-implement-domain-using-repository-backed-by-relational-database)
+    * [Resources](#resources)
+
+
 ## Intro
 
 The is is an example of a Play project that uses functional domain modeling approach to it's desig.
