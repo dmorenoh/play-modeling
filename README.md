@@ -13,7 +13,7 @@ This is a, very simplified, REST API for a fictional DVD rental application.
 Often it's too late at that point and you are stuck with design decisions you made early in the project.
 As a developer, you want to *delay* making decisions on concrete implementation until you gain enough
 domain knowledge.
-1. You want to separate domain complexity from accidental complexity that comes from using a particular framework
+1. You want to separate domain complexity from [accidental complexity](https://en.wikipedia.org/wiki/No_Silver_Bullet) that comes from using a particular framework
  or a library.
 
 ## Evolution Of The Functional Domain Model
