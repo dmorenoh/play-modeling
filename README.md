@@ -5,15 +5,15 @@
   * [Functional Domain Modeling in Play](#functional-domain-modeling-in-play)
     * [Intro](#intro)
     * [Goals](#goals)
-    * [Evolution Of The Functional Domain Model](#evolution-of-the-functional-domain-model)
+    * [Evolution of The Functional Domain Model](#evolution-of-the-functional-domain-model)
       * [1. Parametrize Types In The Service Trait](#1-parametrize-types-in-the-service-trait)
       * [2. Add Higher-kind Wrapper M[_] Around Results](#2-add-higher-kind-wrapper-m_-around-results)
         * [What are all the choices for M[_] ?](#what-are-all-the-choices-for-m_-)
       * [4. Start Defining Business Domain Rules](#4-start-defining-business-domain-rules)
       * [5. Define Repository Trait](#5-define-repository-trait)
       * [3. Implement Controllers](#3-implement-controllers)
-      * [6. Naive Implementation Of The Domain](#6-naive-implementation-of-the-domain)
-      * [7. Implement Domain Using Repository Backed By Relational Database](#7-implement-domain-using-repository-backed-by-relational-database)
+      * [6. Naive Implementation of The Domain](#6-naive-implementation-of-the-domain)
+      * [7. Implement Domain Using Repository Backed by Relational Database](#7-implement-domain-using-repository-backed-by-relational-database)
     * [Resources](#resources)
 
 
@@ -31,7 +31,7 @@ domain knowledge.
 1. You want to separate domain complexity from [accidental complexity](https://en.wikipedia.org/wiki/No_Silver_Bullet) that comes from using a particular framework
  or a library.
 
-## Evolution Of The Functional Domain Model
+## Evolution of The Functional Domain Model
 
 ### 1. Parametrize Types In The Service Trait
 
@@ -110,9 +110,9 @@ type ServiceResult[A, Repo <: Repository] = Kleisli[AsyncResult, Repo, A]
 
 ### 3. Implement Controllers
 
-### 6. Naive Implementation Of The Domain
+### 6. Naive Implementation of The Domain
 
-### 7. Implement Domain Using Repository Backed By Relational Database
+### 7. Implement Domain Using Repository Backed by Relational Database
 
 ## Resources
 
