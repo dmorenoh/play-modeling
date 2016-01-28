@@ -19,7 +19,7 @@
 
 ## Intro
 
-The is is an example of a Play project that uses functional domain modeling approach to it's desig.
+The is is an example of a Play project that uses functional domain modeling approach in it's design.
 This is a, very simplified, REST API for a fictional DVD rental application.
 
 ## Goals
