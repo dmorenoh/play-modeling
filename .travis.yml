@@ -3,6 +3,9 @@ scala:
   - 2.11.7
 jdk:
   - oraclejdk8
+cache:
+  directories:
+    - $HOME/.m2
 script:
   - sbt ++$TRAVIS_SCALA_VERSION '; set testOptions in Test ++= Seq(Tests.Argument("-F"), Tests.Argument("20.0")); coverage; test'
 after_success:
