@@ -20,14 +20,17 @@ abstract class RentalController[Movie: Writes, DVD: Writes, Customer, Timestamp,
     Ok("Hello World")
   }
 
-  def addDVDs(movie: Movie, qty: Int) = run(service.addMovie(movie, qty))
-
-  private def run[A: Writes](result: Result[A]) = Action.async {
+  /**
+    * Handle Result. It's ame thing for every controller action. So why not use implicit conversion.
+    */
+  private implicit def run[A: Writes](result: Result[A]): Action[AnyContent] = Action.async {
     result.run(repository).fold(
       error => BadRequest(error),
       res => Ok(Json.toJson(res))
     )
   }
+
+  def addDVDs(movie: Movie, qty: Int): Action[AnyContent] = service.addMovie(movie, qty)
 
 }
 

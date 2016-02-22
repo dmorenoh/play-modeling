@@ -110,6 +110,36 @@ type ServiceResult[A, Repo <: Repository] = Kleisli[AsyncResult, Repo, A]
 
 ### 3. Implement Controllers
 
+At this point, you can even implement a simple controller that returns Json:
+
+```scala
+// Abstract class because traits don't allow context bounds on types.
+abstract class RentalController[Movie: Writes, DVD: Writes, Customer, Timestamp, Repo <: Repository] extends Controller {
+
+  type Result[A] = ServiceResult[A, Repo]
+
+  def service: RentalService[Result, Movie, Customer, DVD, Timestamp]
+
+  def repository: Repo
+
+  /**
+    * Handle Result. It's ame thing for every controller action. So why not use implicit conversion.
+    */
+  private implicit def run[A: Writes](result: Result[A]): Action[AnyContent] = Action.async {
+    result.run(repository).fold(
+      error => BadRequest(error),
+      res => Ok(Json.toJson(res))
+    )
+  }
+
+  def addDVDs(movie: Movie, qty: Int): Action[AnyContent] = service.addMovie(movie, qty)
+
+}
+```
+
+When the types are known and we have concrete implementation of repository, we'll just
+create a conecrete controller class extending this class.
+
 ### 6. Naive Implementation of The Domain
 
 ### 7. Implement Domain Using Repository Backed by Relational Database
