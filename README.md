@@ -2,20 +2,22 @@
 
 # Functional Domain Modeling in Play
 
-  * [Functional Domain Modeling in Play](#functional-domain-modeling-in-play)
-    * [Intro](#intro)
-    * [Goals](#goals)
-    * [Evolution of The Functional Domain Model](#evolution-of-the-functional-domain-model)
-      * [1. Parametrize Types In The Service Trait](#1-parametrize-types-in-the-service-trait)
-      * [2. Add Higher-kind Wrapper M[_] Around Results](#2-add-higher-kind-wrapper-m_-around-results)
-        * [What are all the choices for M[_] ?](#what-are-all-the-choices-for-m_-)
-      * [4. Start Defining Business Domain Rules](#4-start-defining-business-domain-rules)
-      * [5. Define Repository Trait](#5-define-repository-trait)
-      * [3. Implement Controllers](#3-implement-controllers)
-      * [6. Naive Implementation of The Domain](#6-naive-implementation-of-the-domain)
-      * [7. Implement Domain Using Repository Backed by Relational Database](#7-implement-domain-using-repository-backed-by-relational-database)
-    * [Resources](#resources)
-
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+- [Functional Domain Modeling in Play](#functional-domain-modeling-in-play)
+  - [Intro](#intro)
+  - [Goals](#goals)
+  - [Evolution of The Functional Domain Model](#evolution-of-the-functional-domain-model)
+    - [1. Parametrize Types In The Service Trait](#1-parametrize-types-in-the-service-trait)
+    - [2. Add Higher-kind Wrapper `M[_]` Around Results](#2-add-higher-kind-wrapper-m_-around-results)
+      - [What are all the choices for `M[_]` ?](#what-are-all-the-choices-for-m_-)
+    - [4. Start Defining Business Domain Rules](#4-start-defining-business-domain-rules)
+    - [5. Define Repository Trait](#5-define-repository-trait)
+    - [3. Implement Controllers](#3-implement-controllers)
+    - [6. Naive Implementation of The Domain](#6-naive-implementation-of-the-domain)
+    - [7. Implement Domain Using Repository Backed by Relational Database](#7-implement-domain-using-repository-backed-by-relational-database)
+  - [Resources](#resources)
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Intro
 
@@ -46,6 +48,8 @@ trait RentalService[Movie, Customer, DVD, Timestamp] {
 }
 ```
 
+Using Domain Driven Design (DDD) terminology, types are the _nouns_ and function names are the _verbs_.
+
 ### 2. Add Higher-kind Wrapper `M[_]` Around Results
 
 ```scala
@@ -58,6 +62,8 @@ trait RentalService[M[_], Movie, Customer, DVD, Timestamp] {
 
 }
 ```
+
+The purpose is to allow defining "context". Error handling. Is it async or sync ?
 
 #### What are all the choices for `M[_]` ?
 
@@ -95,14 +101,16 @@ Notice that, at this point, we still don't have any concrete implementation of w
 We can't introduce any accidental complexity from the implementation because there, simply, isn't any
 implementation yet.
 
-This is what Test Driven Development (TDD) should really be like.
+This is what Test Driven Development (TDD) should really be like. Tests should verify and, in a way, document business logic.
 
 
 ### 5. Define Repository Trait
 
-Make dependency on repository explicit. In the context.
+Make dependency on repository explicit. As a part of your return type. Then, it's easy to see what part of the framework a function needs. This is a form
+of dependency injection (DI).
 
-Our `M[_]` becomes a function: `Repository => Future[Error \/ A]`
+Our `M[_]` becomes a function: `Repository => Future[Error \/ A]`. Function of type `A => F[B]` are also called Kelisli. If `F` is a monad, then
+`Kleisli[F, A, B]` is a monad too.
 
 ```scala
 type ServiceResult[A, Repo <: Repository] = Kleisli[AsyncResult, Repo, A]
@@ -110,7 +118,9 @@ type ServiceResult[A, Repo <: Repository] = Kleisli[AsyncResult, Repo, A]
 
 ### 3. Implement Controllers
 
-At this point, you can even implement a simple controller that returns Json:
+At this point, event if you don't have any implementation, you can implement a simple controller that returns Json.
+
+For example:
 
 ```scala
 // Abstract class because traits don't allow context bounds on types.
@@ -123,7 +133,7 @@ abstract class RentalController[Movie: Writes, DVD: Writes, Customer, Timestamp,
   def repository: Repo
 
   /**
-    * Handle Result. It's ame thing for every controller action. So why not use implicit conversion.
+    * Handle Result. It's same thing for every controller action. So why not use implicit conversion.
     */
   private implicit def run[A: Writes](result: Result[A]): Action[AnyContent] = Action.async {
     result.run(repository).fold(
@@ -138,7 +148,7 @@ abstract class RentalController[Movie: Writes, DVD: Writes, Customer, Timestamp,
 ```
 
 When the types are known and we have concrete implementation of repository, we'll just
-create a conecrete controller class extending this class.
+create a concrete controller class extending this class.
 
 ### 6. Naive Implementation of The Domain
 
