@@ -1,21 +1,21 @@
 
 package example.videoclub.services
 
+import cats.scalatest.XorMatchers
 import example.videoclub.repository.Repository
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest._
 import org.scalatest.concurrent.{AsyncAssertions, ScalaFutures}
 import org.scalatest.prop.PropertyChecks
-import org.typelevel.scalatest.DisjunctionMatchers
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.util.Random
-import scalaz.Scalaz._
-import scalaz._
+import cats.data._
+import cats.implicits._
 
 abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Arbitrary, Timestamp: Arbitrary, Repo <: Repository] extends WordSpec
   with Matchers
-  with PropertyChecks with ScalaFutures with DisjunctionMatchers with AsyncAssertions {
+  with PropertyChecks with ScalaFutures with XorMatchers with AsyncAssertions {
 
   type RentalServiceResult[A] = ServiceResult[A, Repo]
 
@@ -44,13 +44,14 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
         val respones = for {
           dvds <- service.addMovie(movie, qty)
           found <- service.findDVD(movie)
+          found <- service.findDVD(movie)
         } yield (dvds, found)
 
-        whenReady(respones.run(repo).run) { result =>
+        whenReady(respones.run(repo).value) { result =>
 
           result shouldBe right
 
-          val \/-((dvds, foundDvd)) = result
+          val Xor.Right((dvds, foundDvd)) = result
 
           foundDvd shouldBe defined
 
@@ -76,7 +77,7 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
             r <- service.rentDVD(customer, aDvd, timestamp)
           } yield r
 
-          whenReady(respones.run(repo).run) { result =>
+          whenReady(respones.run(repo).value) { result =>
             result shouldBe right
 
           }
@@ -88,11 +89,11 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
     withService { service =>
       val respones = service.findDVD(movie)
 
-      whenReady(respones.run(repo).run) { result =>
+      whenReady(respones.run(repo).value) { result =>
 
         result shouldBe right
 
-        val \/-(foundDvd) = result
+        val Xor.Right(foundDvd) = result
 
         foundDvd shouldBe empty
       }
@@ -114,7 +115,7 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
             }
           } yield resp
 
-          whenReady(respones.run(repo).run) { result =>
+          whenReady(respones.run(repo).value) { result =>
             result shouldBe right
           }
         }
@@ -138,10 +139,10 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
             findDvd <- service.findDVD(movie)
           } yield findDvd
 
-          whenReady(respones.run(repo).run) {
+          whenReady(respones.run(repo).value) {
             result =>
               result shouldBe right
-              val \/-(foundDvd) = result
+              val Xor.Right(foundDvd) = result
 
               foundDvd shouldBe empty
 
@@ -170,10 +171,10 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
             findDvd <- service.findDVD(movie)
           } yield (aDvd, findDvd)
 
-          whenReady(respones.run(repo).run) {
+          whenReady(respones.run(repo).value) {
             result =>
               result shouldBe right
-              val \/-((returnedDvd, foundDvd)) = result
+              val Xor.Right((returnedDvd, foundDvd)) = result
 
               foundDvd shouldBe defined
 
@@ -200,7 +201,7 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
             r2 <- service.rentDVD(customer2, aDvd, timestamp)
           } yield r2
 
-          whenReady(respones.run(repo).run) {
+          whenReady(respones.run(repo).value) {
             result =>
               result shouldBe left
           }

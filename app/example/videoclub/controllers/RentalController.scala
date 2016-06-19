@@ -5,8 +5,7 @@ import example.videoclub.services._
 import play.api.libs.json._
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import scalaz._
-import Scalaz._
+import cats.std.future._
 
 abstract class RentalController[Movie: Writes, DVD: Writes, Customer, Timestamp, Repo <: Repository] extends Controller {
 
