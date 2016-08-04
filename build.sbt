@@ -10,14 +10,14 @@ scalaVersion := "2.11.8"
 libraryDependencies ++= Seq(
   cache,
   ws,
-  "org.typelevel"     %% "cats"                   % "0.6.0",
-  "com.typesafe.play" %% "play-slick"             % "1.1.1",
-  "com.ticketfly"     %% "play-liquibase"         % "1.0",
-  "com.h2database"    % "h2"                      % "1.4.189",
-  "org.scalatest"     %% "scalatest"              % "2.2.6"     % Test,
-  "org.scalatestplus" %% "play"                   % "1.4.0"     % Test,
-  "org.scalacheck"    %% "scalacheck"             % "1.12.5"    % Test,
-  "com.ironcorelabs"  %% "cats-scalatest"         % "1.3.0"     % Test
+  "org.typelevel"           %% "cats"                   % "0.6.1",
+  "com.typesafe.play"       %% "play-slick"             % "1.1.1",
+  "com.ticketfly"           %% "play-liquibase"         % "1.0",
+  "com.h2database"          % "h2"                      % "1.4.189",
+  "org.scalatest"           %% "scalatest"              % "2.2.6"     % Test,
+  "org.scalatestplus.play"  %% "scalatestplus-play"     % "1.5.0"     % Test,
+  "org.scalacheck"          %% "scalacheck"             % "1.12.5"    % Test,
+  "com.ironcorelabs"        %% "cats-scalatest"         % "1.3.0"     % Test
 )
 
 scalacOptions ++= Seq(
