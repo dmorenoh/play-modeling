@@ -7,6 +7,7 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest._
 import org.scalatest.concurrent.{AsyncAssertions, ScalaFutures}
 import org.scalatest.prop.PropertyChecks
+import Matchers._
 
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.util.Random
@@ -14,7 +15,6 @@ import cats.data._
 import cats.implicits._
 
 abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Arbitrary, Timestamp: Arbitrary, Repo <: Repository] extends WordSpec
-  with Matchers
   with PropertyChecks with ScalaFutures with XorMatchers with AsyncAssertions {
 
   type RentalServiceResult[A] = ServiceResult[A, Repo]

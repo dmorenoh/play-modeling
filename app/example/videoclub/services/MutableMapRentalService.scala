@@ -10,7 +10,7 @@ import scala.collection.mutable.{Set => MSet}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import MutableMapRentalService._
 import cats.data.Xor
-import cats.std.future._
+import cats.implicits.catsStdInstancesForFuture
 
 /**
   * Dummy implementation with in-memory maps
