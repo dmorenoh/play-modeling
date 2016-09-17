@@ -1,21 +1,20 @@
 
 package example.videoclub.services
 
-import cats.scalatest.XorMatchers
+import cats.data.Xor
+import cats.scalatest.XorMatchers._
 import example.videoclub.repository.Repository
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest._
-import org.scalatest.concurrent.{AsyncAssertions, ScalaFutures}
-import org.scalatest.prop.PropertyChecks
-import Matchers._
-
+import org.scalatest.Matchers._
+import org.scalatest.concurrent.ScalaFutures._
+import org.scalatest.prop.PropertyChecks._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import scala.util.Random
-import cats.data._
-import cats.implicits._
 
-abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Arbitrary, Timestamp: Arbitrary, Repo <: Repository] extends WordSpec
-  with PropertyChecks with ScalaFutures with XorMatchers with AsyncAssertions {
+import scala.util.Random
+import cats.implicits._
+import org.scalatest.WordSpec
+
+abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Arbitrary, Timestamp: Arbitrary, Repo <: Repository] extends WordSpec {
 
   type RentalServiceResult[A] = ServiceResult[A, Repo]
 
