@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
   "com.h2database"          % "h2"                      % "1.4.189",
   "org.scalatestplus.play"  %% "scalatestplus-play"     % "1.5.1"     % Test,
   "org.scalacheck"          %% "scalacheck"             % "1.12.5"    % Test, // 0.13 does not work with scalatest 2.2
-  "com.ironcorelabs"        %% "cats-scalatest"         % "1.3.0"     % Test
+  "com.ironcorelabs"        %% "cats-scalatest"         % "1.4.0"     % Test
 )
 
 // Play provides two styles of routers, one expects its actions to be injected, the
