@@ -9,7 +9,6 @@ import scala.collection.mutable.{Map => MMap}
 import scala.collection.mutable.{Set => MSet}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import MutableMapRentalService._
-import cats.data.Xor
 import cats.implicits.catsStdInstancesForFuture
 
 /**
@@ -50,9 +49,9 @@ class MutableMapDVDRepository extends DVDRepository[AsyncResult, String, UUID, B
 
   override def updateDVDStatus(dvdId: UUID, status: Boolean, customer: UUID, timestamp: ZonedDateTime): AsyncResult[Unit] = if(status) {
     if(rentedDvds.contains(dvdId)) {
-      $ <~ Xor.left(s"$dvdId is already rented")
+      $ <~ Left(s"$dvdId is already rented")
     } else dvdMovies.get(dvdId) match {
-      case None => $ <~ Xor.left(s"$dvdId is not in the inventory")
+      case None => $ <~ Left(s"$dvdId is not in the inventory")
       case Some(movie) =>
         rentedDvds += dvdId
         availableDvds += movie -> (availableDvds.getOrElse(movie, Set()) - dvdId)
@@ -60,7 +59,7 @@ class MutableMapDVDRepository extends DVDRepository[AsyncResult, String, UUID, B
     }
   } else {
     dvdMovies.get(dvdId) match {
-      case None => $ <~ Xor.left(s"$dvdId is not in the inventory")
+      case None => $ <~ Left(s"$dvdId is not in the inventory")
       case Some(movie) =>
         rentedDvds -= dvdId
         availableDvds += movie -> (availableDvds.getOrElse(movie, Set()) + dvdId)

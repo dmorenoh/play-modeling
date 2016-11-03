@@ -10,13 +10,13 @@ scalaVersion := "2.11.8"
 libraryDependencies ++= Seq(
   cache,
   ws,
-  "org.typelevel"           %% "cats"                   % "0.7.2",
+  "org.typelevel"           %% "cats"                   % "0.8.0",
   "com.typesafe.play"       %% "play-slick"             % "2.0.2",
   "com.ticketfly"           %% "play-liquibase"         % "1.3",
   "com.h2database"          % "h2"                      % "1.4.189",
-  "org.scalatestplus.play"  %% "scalatestplus-play"     % "1.5.1"     % Test,
-  "org.scalacheck"          %% "scalacheck"             % "1.12.5"    % Test, // 0.13 does not work with scalatest 2.2
-  "com.ironcorelabs"        %% "cats-scalatest"         % "1.4.0"     % Test
+  "org.scalatestplus.play"  %% "scalatestplus-play"     % "2.0.0-M1"  % Test,
+  "org.scalacheck"          %% "scalacheck"             % "1.13.4"    % Test,
+  "com.ironcorelabs"        %% "cats-scalatest"         % "2.1.0"     % Test
 )
 
 // Play provides two styles of routers, one expects its actions to be injected, the

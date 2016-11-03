@@ -1,8 +1,7 @@
 
 package example.videoclub.services
 
-import cats.data.Xor
-import cats.scalatest.XorMatchers._
+import cats.scalatest.EitherMatchers._
 import example.videoclub.repository.Repository
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.Matchers._
@@ -50,7 +49,7 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
 
           result shouldBe right
 
-          val Xor.Right((dvds, foundDvd)) = result
+          val Right((dvds, foundDvd)) = result
 
           foundDvd shouldBe defined
 
@@ -92,7 +91,7 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
 
         result shouldBe right
 
-        val Xor.Right(foundDvd) = result
+        val Right(foundDvd) = result
 
         foundDvd shouldBe empty
       }
@@ -141,7 +140,7 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
           whenReady(respones.run(repo).value) {
             result =>
               result shouldBe right
-              val Xor.Right(foundDvd) = result
+              val Right(foundDvd) = result
 
               foundDvd shouldBe empty
 
@@ -173,7 +172,7 @@ abstract class RentalServiceRules[Movie: Arbitrary, DVD: Arbitrary, Customer: Ar
           whenReady(respones.run(repo).value) {
             result =>
               result shouldBe right
-              val Xor.Right((returnedDvd, foundDvd)) = result
+              val Right((returnedDvd, foundDvd)) = result
 
               foundDvd shouldBe defined
 

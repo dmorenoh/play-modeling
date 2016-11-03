@@ -11,17 +11,17 @@ package object services {
 
   type Errors = String
 
-  type Valid[A] = Errors Xor A
+  type Valid[A] = Either[Errors, A]
 
-  type AsyncResult[A] = XorT[Future, Errors, A]
+  type AsyncResult[A] = EitherT[Future, Errors, A]
 
   type ServiceResult[A, Repo <: Repository] = Kleisli[AsyncResult, Repo, A]
 
 
   object $ {
-    def <~[A](a: Future[Valid[A]]): AsyncResult[A] = XorT(a)
+    def <~[A](a: Future[Valid[A]]): AsyncResult[A] = EitherT(a)
     def <~[A](a: Valid[A])        : AsyncResult[A] = <~(Future.successful(a))
-    def <~[A](a: A)               : AsyncResult[A] = <~(Xor.right(a))
+    def <~[A](a: A)               : AsyncResult[A] = <~(Right(a))
 
     def <~~[A, Repo <: Repository](a: Repo => AsyncResult[A]) : ServiceResult[A, Repo] = Kleisli((r: Repo) => a(r))
     def <~~[A, Repo <: Repository](a: AsyncResult[A])         : ServiceResult[A, Repo] = <~~(_ => a)
